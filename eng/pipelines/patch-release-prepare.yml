@@ -41,6 +41,8 @@ extends:
                 workingDirectory: $(Build.SourcesDirectory)
                 displayName: 'Create release branch'
 
+              - template: /eng/common/pipelines/templates/steps/login-to-github.yml
+
               # Push the release branch to the repo
               - template: /eng/common/pipelines/templates/steps/login-to-github.yml
 
@@ -65,6 +67,9 @@ extends:
                   arguments: >
                     -SourcesDirectory .
                     -PackagesYmlPath eng/pipelines/patch-release.yml
+                    -UseCurrentBranch
+                env:
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
               # Create a PR with the patches prepared
               - template: /eng/common/pipelines/templates/steps/create-pull-request.yml
@@ -72,6 +77,7 @@ extends:
                   BaseBranchName: refs/heads/$(BaseBranchName)
                   PRBranchName: prepare-patch-release-$(PatchDate)-$(Build.BuildId)
                   PROwner: Azure
+                  AuthToken: $(GH_TOKEN)
                   CommitMsg: "Patch release preparation $(PatchDate)"
                   PRTitle: "Prepare patch release $(PatchDate)"
                   AuthToken: ''
